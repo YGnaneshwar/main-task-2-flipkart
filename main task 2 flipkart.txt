@@ -1,0 +1,52 @@
+# Importing necessary modules
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Scraping the data
+url = "https://www.flipkart.com/search?q=laptops"
+r = requests.get(url)
+
+# Checking if the request was successful
+if r.status_code == 200:
+    print("Successfully fetched the webpage")
+else:
+    print("Failed to fetch the webpage")
+
+# Parsing the HTML content
+soup = BeautifulSoup(r.content, "html.parser")
+
+# Finding the necessary elements (class names might need to be updated)
+titles = soup.find_all('a', class_='IRpwTa')
+ratings = soup.find_all('div', class_='_3LWZlK')
+reviews = soup.find_all('span', class_='_2_R_DZ')
+prices = soup.find_all('div', class_='_30jeq3')
+
+# Lists to store the extracted data
+mt = []
+mr = []
+mre = []
+mp = []
+
+# Extracting and storing the data
+for title, rating, rev, pri in zip(titles, ratings, reviews, prices):
+    mt.append(title.text)
+    mr.append(rating.text)
+    mre.append(rev.text)
+    mp.append(pri.text)
+
+# Checking if data was extracted
+if mt and mr and mre and mp:
+    print("Data successfully extracted")
+else:
+    print("Failed to extract data")
+
+# Saving data to a CSV file
+data = {'Title': mt, 'Rating': mr, 'Reviews': mre, 'Price': mp}
+model = pd.DataFrame(data=data)
+
+# Specify the path where you want to save the CSV file
+csv_path = "laptopsdata.csv"
+model.to_csv(csv_path, index=False)
+
+print(f"Data successfully saved to {csv_path}")
